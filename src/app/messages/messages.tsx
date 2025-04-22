@@ -19,7 +19,7 @@ function Messages() {
 
   useEffect(() => {
     // GET TO THE ENDPOINT
-    fetch('http://localhost:8080/messages')
+    fetch('https://messageboard-back.onrender.com/messages')
       // ERROR ? STORE IT : PARSE IT && STORE IT
       .then(response => {
         if (!response.ok) {
@@ -45,11 +45,14 @@ function Messages() {
     e.preventDefault();
 
     try {
-      const res = await fetch('http://localhost:8080/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        'https://messageboard-back.onrender.com/messages',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        },
+      );
 
       if (!res.ok) throw new Error('Error al enviar');
 
