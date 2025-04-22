@@ -1,6 +1,5 @@
 import React from 'react';
 import Messages from './messages';
-import Link from 'next/link';
 
 function page() {
   return (
