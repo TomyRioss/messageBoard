@@ -1,4 +1,5 @@
 'use client';
+import { get } from 'http';
 import { useState, useEffect } from 'react';
 import React from 'react';
 
@@ -16,23 +17,22 @@ function Messages() {
     message: '',
     date: '',
   });
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch('http://localhost:5173/messages');
+      if (!res.ok) throw new Error('Algo salió mal al obtener los mensajes');
+      const data = await res.json();
+      setMessages(data);
+      setError(null);
+    } catch (err) {
+      setError(String(err));
+    }
+  };
 
   useEffect(() => {
-    // GET TO THE ENDPOINT
-    fetch('https://messageboard-back.onrender.com/messages')
-      // ERROR ? STORE IT : PARSE IT && STORE IT
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Something went wrong');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setMessages(data);
-      })
-      .catch(error => {
-        setError(error.message);
-      });
+    fetchMessages();
   }, []);
 
   const handleChange = (
@@ -45,35 +45,77 @@ function Messages() {
     e.preventDefault();
 
     try {
-      const res = await fetch(
-        'https://messageboard-back.onrender.com/messages',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        },
-      );
+      const res = await fetch('http://localhost:5173/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
       if (!res.ok) throw new Error('Error al enviar');
 
-      alert('Mensaje enviado correctamente');
       setFormData({ message: '', date: '' });
+      setSuccessMessage('¡Mensaje envíado con éxito!');
     } catch (error) {
-      console.error(error);
-      alert('Hubo un error al enviar el mensaje');
+      setSuccessMessage(null);
+      setError(String(error)); // POSSIBLY REDUNDANT, INSPECT LATER
     }
   };
 
-  if (error) return <p>Error: {error}</p>;
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.currentTarget);
+    const search = formData.get('search')?.toString().trim();
+
+    if (!search) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5173/messages?search=${encodeURIComponent(search)}`,
+      );
+      if (!res.ok) throw new Error('Error al buscar');
+
+      const data = await res.json();
+      console.log('Mensajes similares:', data);
+      setMessages(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
-    <>
+    <div className="bg-amber-100 h-full">
       <div>
-        <ul>
+        <form
+          onSubmit={handleSearch}
+          className="flex justify-center items-center"
+        >
+          <input
+            type="text"
+            name="search"
+            placeholder="Buscar mensaje..."
+            className="border-2 border-black rounded-lg p-3 m-5"
+          />
+          <button
+            type="submit"
+            className="border-2 border-black rounded-lg p-3"
+          >
+            Buscar
+          </button>
+          <button
+            type="button"
+            className="border-2 border-black rounded-lg p-3 m-3"
+            onClick={fetchMessages}
+          >
+            Reset
+          </button>
+        </form>
+
+        <ul className="border-2 border-black rounded-lg p-5  mx-36">
           {messages.map(message => (
             <li
               key={message.id}
-              className="m-10 flex-col gap-5 justify-items-center items-center"
+              className="m-10 flex-col gap-5 justify-items-center items-center bg-amber-200 border-2 border-amber-300 p-5 rounded-lg"
             >
               <p>{message.message}</p>
               <p>{message.date}</p>
@@ -81,27 +123,44 @@ function Messages() {
           ))}
         </ul>
       </div>
-      <div>
-        <form onSubmit={handleSubmit}>
+      <div className="flex flex-col items-center justify-center mt-10">
+        <h2 className="mb-10 text-2xl font-mono">Envía tú mensaje</h2>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-10 border-2 border-black rounded-lg p-10  mx-36"
+        >
           <input
             type="text"
             name="message"
             value={formData.message}
             onChange={handleChange}
-            placeholder="Tu nombre"
+            placeholder="Mensaje..."
+            className="border-2 border-black p-3 rounded-lg"
             required
           />
-          <textarea
+          <input
+            type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
             placeholder="Fecha"
+            className="border-2 border-black p-3 rounded-lg"
             required
           />
-          <button type="submit">Enviar</button>
+          {error && (
+            <h2 className="text-red-500 font-extralight drop-shadow-2xl">
+              {error}
+            </h2>
+          )}
+          {successMessage && (
+            <h2 className="text-green-600 font-extralight">{successMessage}</h2>
+          )}
+          <button type="submit" className="border-2 border-black rounded-2xl ">
+            Enviar
+          </button>
         </form>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -24,11 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <nav className="flex gap-5 m-10">
+        <nav className="flex gap-5 justify-around items-center p-5 bg-amber-200">
           <Link href={'/'}>
             <h3>Inicio</h3>
           </Link>
