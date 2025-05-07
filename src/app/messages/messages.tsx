@@ -123,10 +123,12 @@ function Messages() {
         </ul>
       </div>
       <div className="flex flex-col items-center justify-center mt-10">
-        <h2 className="mb-10 text-2xl font-mono">Envía tú mensaje</h2>
+        <h2 className="mb-10 text-2xl font-mono text-black">
+          Envía tú mensaje
+        </h2>
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-10 border-2 border-black rounded-lg p-10  mx-36"
+          className="flex flex-col gap-10 border-2 border-black rounded-lg p-10  mx-36 text-black"
         >
           <input
             type="text"
@@ -134,7 +136,7 @@ function Messages() {
             value={formData.message}
             onChange={handleChange}
             placeholder="Mensaje..."
-            className="border-2 border-black p-3 rounded-lg"
+            className="border-2 border-black p-3 rounded-lg text-black"
             required
           />
           <input
@@ -143,11 +145,11 @@ function Messages() {
             value={formData.date}
             onChange={handleChange}
             placeholder="Fecha"
-            className="border-2 border-black p-3 rounded-lg"
+            className="border-2 border-black p-3 rounded-lg text-black"
             required
           />
           {error && (
-            <h2 className="text-red-500 font-extralight drop-shadow-2xl">
+            <h2 className="text-red-500 font-extralight drop-shadow-2xl text-black">
               {error}
             </h2>
           )}
